@@ -1,62 +1,38 @@
-kind: "DatadogAgent"
-apiVersion: "datadoghq.com/v2alpha1"
-metadata:
-  name: "datadog"
-  namespace: "datadog"
-spec:
-  global:
-    clusterName: "aks-solidarytech"
-    site: "us5.datadoghq.com"
-    credentials:
-      apiSecret:
-        secretName: "datadog-secret"
-        keyName: "api-key"
-    tags:
-      - "env:prod"
-  features:
-    clusterChecks:
+datadog:
+  site: "us5.datadoghq.com"
+  clusterName: "aks-solidarytech"
+  apiKeyExistingSecret: "datadog-secret"
+  clusterChecks:
+    enabled: true
+  orchestratorExplorer:
+    enabled: true
+  apm:
+    instrumentation:
       enabled: true
-    orchestratorExplorer:
-      enabled: true
-    apm:
-      instrumentation:
-        enabled: true
-        targets:
-          - name: "default-target"
-            ddTraceVersions:
-              java: "1"
-              python: "4"
-              js: "5"
-              php: "1"
-              dotnet: "3"
-              ruby: "2"
-            ddTraceConfigs:
-              - name: "DD_RUM_ENABLED"
-                value: "true"
-              - name: "DD_RUM_APPLICATION_ID"
-                value: "4c8de879-97b8-4671-a90b-62328f5dee3a"
-              - name: "DD_RUM_CLIENT_TOKEN"
-                value: "pub4096175dae5c16b8cdecfae88f2d6ad6"
-              - name: "DD_RUM_REMOTE_CONFIGURATION_ID"
-                value: "37e91ce8-ffc7-47f5-8e1f-c68685fea1cf"
-              - name: "DD_RUM_SITE"
-                value: "us5.datadoghq.com"
-    logCollection:
-      enabled: true
-      containerCollectAll: true
-    otelCollector:
-      enabled: true
-      ports:
-        - containerPort: 4317
-          hostPort: 4317
-          name: "otel-grpc"
-        - containerPort: 4318
-          hostPort: 4318
-          name: "otel-http"
-  override:
-    clusterAgent:
-      containers:
-        cluster-agent:
-          env:
-            - name: "DD_ADMISSION_CONTROLLER_ADD_AKS_SELECTORS"
+      targets:
+        - name: "default-target"
+          ddTraceVersions:
+            java: "1"
+            python: "4"
+            js: "5"
+            php: "1"
+            dotnet: "3"
+            ruby: "2"
+          ddTraceConfigs:
+            - name: "DD_RUM_ENABLED"
               value: "true"
+            - name: "DD_RUM_APPLICATION_ID"
+              value: "0a07c365-2e44-491b-93b0-514484792985"
+            - name: "DD_RUM_CLIENT_TOKEN"
+              value: "pub3897dbcdcd79f9aa6d4bc615bbcf86d4"
+            - name: "DD_RUM_REMOTE_CONFIGURATION_ID"
+              value: "e7360263-1cef-4a13-bd39-71120b49efeb"
+            - name: "DD_RUM_SITE"
+              value: "us5.datadoghq.com"
+  logs:
+    enabled: true
+    containerCollectAll: true
+providers:
+  aks:
+    enabled: true
+registry: "datadoghq.azurecr.io"
