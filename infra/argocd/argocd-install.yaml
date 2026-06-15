@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: solidarytech
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: SolidaryTech — ONG que conecta doadores e voluntários
+  sourceRepos:
+    - https://github.com/DCLT/1-DCLT-GITOPS-FASE-5
+  destinations:
+    - namespace: solidarytech
+      server: https://kubernetes.default.svc
+    - namespace: monitoring
+      server: https://kubernetes.default.svc
+    - namespace: velero
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+    - group: "rbac.authorization.k8s.io"
+      kind: ClusterRole
+    - group: "rbac.authorization.k8s.io"
+      kind: ClusterRoleBinding
+  namespaceResourceWhitelist:
+    - group: "apps"
+      kind: Deployment
+    - group: ""
+      kind: Service
+    - group: "autoscaling"
+      kind: HorizontalPodAutoscaler
+    - group: "monitoring.coreos.com"
+      kind: PrometheusRule
+    - group: "monitoring.coreos.com"
+      kind: ServiceMonitor
+  roles:
+    - name: admin
+      policies:
+        - p, proj:solidarytech:admin, applications, *, solidarytech/*, allow
+      groups:
+        - solidarytech-admins
