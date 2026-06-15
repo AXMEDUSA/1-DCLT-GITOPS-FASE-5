@@ -8,25 +8,18 @@ configuration:
       resourceGroup: rg-solidarytech-fase5
       storageAccount: stsolidarytechvelero
       storageAccountKeyEnvVar: AZURE_STORAGE_ACCOUNT_ACCESS_KEY
-      subscriptionId: "$(AZURE_SUBSCRIPTION_ID)"
+      subscriptionId: "a30d43ad-b699-44b4-a11f-31636b226495"
 
   volumeSnapshotLocation:
     name: default
     provider: azure
     config:
       resourceGroup: rg-solidarytech-fase5
-      subscriptionId: "$(AZURE_SUBSCRIPTION_ID)"
+      subscriptionId: "a30d43ad-b699-44b4-a11f-31636b226495"
 
 credentials:
   useSecret: true
-  secretContents:
-    cloud: |
-      AZURE_SUBSCRIPTION_ID=$(AZURE_SUBSCRIPTION_ID)
-      AZURE_TENANT_ID=$(AZURE_TENANT_ID)
-      AZURE_CLIENT_ID=$(AZURE_CLIENT_ID)
-      AZURE_CLIENT_SECRET=$(AZURE_CLIENT_SECRET)
-      AZURE_RESOURCE_GROUP=rg-solidarytech-fase5
-      AZURE_CLOUD_NAME=AzurePublicCloud
+  existingSecret: velero-credentials
 
 initContainers:
   - name: velero-plugin-for-azure
@@ -35,21 +28,13 @@ initContainers:
       - mountPath: /target
         name: plugins
 
----
-apiVersion: velero.io/v1
-kind: Schedule
-metadata:
-  name: daily-backup-solidarytech
-  namespace: velero
-spec:
-  schedule: "0 2 * * *"
-  template:
-    includedNamespaces:
-      - solidarytech
-    storageLocation: default
-    volumeSnapshotLocations:
-      - default
-    ttl: 720h0m0s
-    labelSelector:
-      matchLabels:
-        backup: "true"
+schedules:
+  daily-backup-solidarytech:
+    schedule: "0 2 * * *"
+    template:
+      includedNamespaces:
+        - solidarytech
+      storageLocation: default
+      volumeSnapshotLocations:
+        - default
+      ttl: 720h0m0s

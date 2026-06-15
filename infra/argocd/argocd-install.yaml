@@ -9,6 +9,9 @@ spec:
   description: SolidaryTech — ONG que conecta doadores e voluntários
   sourceRepos:
     - https://github.com/AXMEDUSA/1-DCLT-GITOPS-FASE-5
+    - https://vmware-tanzu.github.io/helm-charts
+    - https://prometheus-community.github.io/helm-charts
+    - https://grafana.github.io/helm-charts
   destinations:
     - namespace: solidarytech
       server: https://kubernetes.default.svc
