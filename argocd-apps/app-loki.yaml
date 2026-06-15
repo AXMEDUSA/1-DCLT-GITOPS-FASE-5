@@ -11,12 +11,20 @@ metadata:
 spec:
   project: solidarytech
   sources:
+    # Loki (modo SingleBinary)
     - repoURL: https://grafana.github.io/helm-charts
       chart: loki
       targetRevision: "6.x"
       helm:
         valueFiles:
           - $values/infra/monitoring/loki-values.yaml
+    # Promtail (chart separado no Loki 6.x)
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: promtail
+      targetRevision: "6.x"
+      helm:
+        valueFiles:
+          - $values/infra/monitoring/promtail-values.yaml
     - repoURL: https://github.com/AXMEDUSA/1-DCLT-GITOPS-FASE-5
       targetRevision: main
       ref: values

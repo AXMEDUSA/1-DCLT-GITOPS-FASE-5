@@ -1,9 +1,11 @@
+deploymentMode: SingleBinary
+
 loki:
   auth_enabled: false
-  storage:
-    type: filesystem
   commonConfig:
     replication_factor: 1
+  storage:
+    type: filesystem
   schemaConfig:
     configs:
       - from: "2024-01-01"
@@ -19,26 +21,34 @@ singleBinary:
   persistence:
     enabled: true
     size: 10Gi
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "250m"
+      memory: "256Mi"
 
+# Desabilitar componentes de modo distribuído
+read:
+  replicas: 0
+write:
+  replicas: 0
+backend:
+  replicas: 0
+
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false
+
+minio:
+  enabled: false
+
+# Promtail — coleta logs do namespace solidarytech
 promtail:
-  enabled: true
-  config:
-    clients:
-      - url: http://loki:3100/loki/api/v1/push
-    scrape_configs:
-      - job_name: solidarytech-pods
-        kubernetes_sd_configs:
-          - role: pod
-            namespaces:
-              names: [solidarytech]
-        pipeline_stages:
-          - docker: {}
-          - labeldrop:
-              - filename
-        relabel_configs:
-          - source_labels: [__meta_kubernetes_pod_label_app]
-            target_label: app
-          - source_labels: [__meta_kubernetes_namespace]
-            target_label: namespace
-          - source_labels: [__meta_kubernetes_pod_name]
-            target_label: pod
+  enabled: false
+
+# Usar Promtail via chart separado ou gateway desabilitado
+gateway:
+  enabled: false
