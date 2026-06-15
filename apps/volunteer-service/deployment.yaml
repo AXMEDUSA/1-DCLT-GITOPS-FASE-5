@@ -23,6 +23,7 @@ spec:
       containers:
         - name: volunteer-service
           image: acrsolidarytechf5.azurecr.io/volunteer-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8083
           env:
