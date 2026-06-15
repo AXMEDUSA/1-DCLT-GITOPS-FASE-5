@@ -92,6 +92,28 @@ Alertas configurados em `infra/monitoring/prometheus-values.yaml`.
 Backup diário às **02:00 UTC**, namespace `solidarytech`, retenção **30 dias**.
 
 ```bash
-velero restore create --from-schedule daily-backup-solidarytech
+# Listar backups existentes
 velero backup get
+
+# Backup manual imediato
+velero backup create backup-manual-$(date +%Y%m%d) --include-namespaces solidarytech
+
+# Forçar execução do schedule agora (sem esperar 02:00 UTC)
+velero backup create --from-schedule daily-backup-solidarytech
+
+# Detalhes de um backup específico
+velero backup describe <nome-do-backup>
+
+# Restaurar a partir do último backup do schedule
+velero restore create --from-schedule daily-backup-solidarytech
+```
+
+## ArgoCD
+
+```bash
+# Acessar UI
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+
+# Recuperar senha do admin
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d
 ```
