@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: solidarytech-ui
+  namespace: argocd
+  labels:
+    project: solidarytech
+    tier: frontend
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: solidarytech
+  source:
+    repoURL: https://github.com/AXMEDUSA/1-DCLT-GITOPS-FASE-5
+    targetRevision: main
+    path: apps/solidarytech-ui
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: solidarytech-ui
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

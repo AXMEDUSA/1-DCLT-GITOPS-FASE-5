@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: solidarytech-ui
+  namespace: solidarytech-ui
+  labels:
+    app: solidarytech-ui
+spec:
+  type: ClusterIP
+  selector:
+    app: solidarytech-ui
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP

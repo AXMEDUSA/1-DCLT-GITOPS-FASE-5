@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: solidarytech-ui
+  namespace: solidarytech-ui
+  labels:
+    app: solidarytech-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: solidarytech-ui
+  template:
+    metadata:
+      labels:
+        app: solidarytech-ui
+    spec:
+      containers:
+        - name: solidarytech-ui
+          image: acrsolidarytechf5.azurecr.io/solidarytech-ui:latest
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "100m"
+              memory: "128Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 10
