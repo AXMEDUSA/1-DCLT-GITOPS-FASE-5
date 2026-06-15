@@ -19,7 +19,7 @@ spec:
         - name: solidarytech-ui
           image: acrsolidarytechf5.azurecr.io/solidarytech-ui:latest
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           resources:
             requests:
               cpu: "50m"
@@ -30,12 +30,12 @@ spec:
           livenessProbe:
             httpGet:
               path: /health
-              port: 80
+              port: 8080
             initialDelaySeconds: 5
             periodSeconds: 15
           readinessProbe:
             httpGet:
               path: /health
-              port: 80
+              port: 8080
             initialDelaySeconds: 3
             periodSeconds: 10
