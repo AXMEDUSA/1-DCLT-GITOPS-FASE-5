@@ -1,21 +1,20 @@
 configuration:
-  provider: azure
   backupStorageLocation:
-    name: default
-    provider: azure
-    bucket: velero-backups-solidarytech
-    config:
-      resourceGroup: rg-solidarytech-fase5
-      storageAccount: stsolidarytechvelero
-      storageAccountKeyEnvVar: AZURE_STORAGE_ACCOUNT_ACCESS_KEY
-      subscriptionId: "a30d43ad-b699-44b4-a11f-31636b226495"
+    - name: default
+      provider: azure
+      bucket: velero-backups-solidarytech
+      config:
+        resourceGroup: rg-solidarytech-fase5
+        storageAccount: stsolidarytechvelero
+        storageAccountKeyEnvVar: AZURE_STORAGE_ACCOUNT_ACCESS_KEY
+        subscriptionId: "a30d43ad-b699-44b4-a11f-31636b226495"
 
   volumeSnapshotLocation:
-    name: default
-    provider: azure
-    config:
-      resourceGroup: rg-solidarytech-fase5
-      subscriptionId: "a30d43ad-b699-44b4-a11f-31636b226495"
+    - name: default
+      provider: azure
+      config:
+        resourceGroup: rg-solidarytech-fase5
+        subscriptionId: "a30d43ad-b699-44b4-a11f-31636b226495"
 
 credentials:
   useSecret: true
