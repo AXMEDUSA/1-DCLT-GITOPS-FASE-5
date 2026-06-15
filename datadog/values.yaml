@@ -21,12 +21,7 @@ datadog:
       targets:
         - name: "default-target"
           ddTraceVersions:
-            java: "1"
-            python: "4"
             js: "5"
-            php: "1"
-            dotnet: "3"
-            ruby: "2"
           ddTraceConfigs:
             - name: "DD_RUM_ENABLED"
               value: "true"
@@ -44,4 +39,4 @@ datadog:
 providers:
   aks:
     enabled: true
-registry: "datadoghq.azurecr.io"
+registry: "gcr.io/datadoghq"

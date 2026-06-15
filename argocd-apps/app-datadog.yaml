@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: datadog
+  namespace: argocd
+  labels:
+    project: solidarytech
+    tier: infra
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: solidarytech
+  sources:
+    # Helm chart oficial do Datadog
+    - repoURL: https://helm.datadoghq.com
+      chart: datadog
+      targetRevision: "3.x"
+      helm:
+        valueFiles:
+          - $values/datadog/values.yaml
+    # Repo GitOps com o values.yaml
+    - repoURL: https://github.com/AXMEDUSA/1-DCLT-GITOPS-FASE-5
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: datadog
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - Replace=true
