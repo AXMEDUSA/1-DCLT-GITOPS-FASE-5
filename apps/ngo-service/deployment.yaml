@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: ngo-service
-          image: acrsolidarytechf5.azurecr.io/ngo-service:latest
+          image: acrsolidarytechf5.azurecr.io/ngo-service:8c4e16d318310e7ca6c9eee5442e89a2edd9f506
           ports:
             - containerPort: 8081
           env:
