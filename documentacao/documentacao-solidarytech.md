@@ -757,3 +757,32 @@ O teste de fluxo completo executa automaticamente em sequência: **Criar ONG →
 
 ![Aba Documentação](assets/12-aba-documentacao.png)
 *Aba Documentação: referência completa da API de todos os 3 serviços inline no dashboard, com endpoints, exemplos de payload, recursos no cluster, SLOs e comandos port-forward para rodar localmente.*
+
+---
+
+## 13. Evidências — Grafana Dashboard SolidaryTech
+
+Dashboard **SolidaryTech — Overview dos Serviços** acessado via:
+
+```bash
+kubectl port-forward svc/monitoring-stack-grafana -n monitoring 3000:80
+# Abrir: http://localhost:3000  (admin / SolidaryTech@2026)
+```
+
+### 13.1 Overview — Pods, Réplicas, CPU e Memória
+
+![Grafana Dashboard Overview](assets/21-grafana-dashboard-overview.png)
+
+*Parte superior do dashboard: painéis de Pods Running (ngo: 1, donation: 2, volunteer: 1), Réplicas Disponíveis por Serviço, CPU Usage por container e Memória Usage por container — todos os serviços saudáveis.*
+
+### 13.2 HPA, Tráfego de Rede e Rightsizing
+
+![Grafana HPA e Rede](assets/22-grafana-dashboard-hpa-rede.png)
+
+*Parte inferior: HPA — Réplicas Atuais vs Desejadas (donation-service escalado para 2), Tráfego de Rede — Entrada bytes, CPU Request vs Uso (Rightsizing — donation-service 0.0375%, ngo-service 0.525%, volunteer-service 0.512%) e Restarts de Containers (0 restarts).*
+
+### 13.3 Status dos Pods — Tabela
+
+![Grafana Status Pods Tabela](assets/23-grafana-status-pods-table.png)
+
+*Tabela de Status dos Pods: todos os pods do namespace `solidarytech` com fase **Running**, coletados via `kube_pod_status_phase` do kube-state-metrics.*
