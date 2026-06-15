@@ -1,0 +1,62 @@
+mode: daemonset
+
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+    prometheus:
+      config:
+        scrape_configs:
+          - job_name: solidarytech
+            kubernetes_sd_configs:
+              - role: pod
+                namespaces:
+                  names: [solidarytech]
+
+  processors:
+    batch:
+      timeout: 10s
+    memory_limiter:
+      check_interval: 5s
+      limit_percentage: 80
+      spike_limit_percentage: 25
+    resource:
+      attributes:
+        - action: insert
+          key: k8s.cluster.name
+          value: aks-solidarytech
+
+  exporters:
+    datadog:
+      api:
+        key: "$(DD_API_KEY)"
+        site: datadoghq.com
+      traces:
+        endpoint: https://trace.agent.datadoghq.com
+    prometheus:
+      endpoint: "0.0.0.0:8889"
+    debug:
+      verbosity: basic
+
+  service:
+    pipelines:
+      traces:
+        receivers: [otlp]
+        processors: [memory_limiter, batch, resource]
+        exporters: [datadog]
+      metrics:
+        receivers: [otlp, prometheus]
+        processors: [memory_limiter, batch, resource]
+        exporters: [prometheus]
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi

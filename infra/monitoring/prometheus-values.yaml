@@ -1,0 +1,144 @@
+nameOverride: kube-prometheus-stack
+
+prometheus:
+  prometheusSpec:
+    retention: 15d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 20Gi
+    additionalScrapeConfigs:
+      - job_name: solidarytech-services
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: [solidarytech]
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: "true"
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            action: replace
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+            target_label: __address__
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            target_label: service
+
+alertmanager:
+  alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 5Gi
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: ["alertname", "service"]
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: slack-incidentes
+      routes:
+        - match:
+            severity: critical
+          receiver: slack-incidentes
+          continue: true
+    receivers:
+      - name: slack-incidentes
+        slack_configs:
+          - api_url: "$(SLACK_WEBHOOK_URL)"
+            channel: "#incidentes"
+            title: '[{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}'
+            text: |
+              *Serviço:* {{ .CommonLabels.service }}
+              *Severidade:* {{ .CommonLabels.severity }}
+              {{ range .Alerts }}*Descrição:* {{ .Annotations.description }}{{ end }}
+
+grafana:
+  enabled: true
+  adminPassword: "$(GRAFANA_ADMIN_PASSWORD)"
+  persistence:
+    enabled: true
+    size: 5Gi
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: solidarytech
+          orgId: 1
+          folder: SolidaryTech
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/solidarytech
+  dashboardsConfigMaps:
+    solidarytech: grafana-dashboards
+
+additionalPrometheusRulesMap:
+  solidarytech-slos:
+    groups:
+      - name: donation-service.slos
+        rules:
+          - alert: DonationServiceErrorBudgetBurning
+            expr: |
+              (
+                1 - (
+                  rate(http_requests_total{service="donation-service",status!~"5.."}[1h])
+                  /
+                  rate(http_requests_total{service="donation-service"}[1h])
+                )
+              ) > 0.001
+            for: 5m
+            labels:
+              severity: critical
+              service: donation-service
+            annotations:
+              summary: "Error budget do donation-service queimando rápido"
+              description: "Taxa de erro acima de 0.1% nos últimos 60min — SLO de 99.9% em risco."
+
+          - alert: DonationServiceHighLatency
+            expr: |
+              histogram_quantile(0.99,
+                rate(http_request_duration_seconds_bucket{service="donation-service"}[5m])
+              ) > 0.5
+            for: 5m
+            labels:
+              severity: warning
+              service: donation-service
+            annotations:
+              summary: "Latência P99 do donation-service acima de 500ms"
+              description: "P99 = {{ $value | humanizeDuration }} — SLO de 500ms violado."
+
+          - alert: DonationServiceDown
+            expr: |
+              up{job="solidarytech-services", service="donation-service"} == 0
+            for: 1m
+            labels:
+              severity: critical
+              service: donation-service
+            annotations:
+              summary: "donation-service indisponível"
+              description: "Nenhum pod do donation-service respondendo há mais de 1 minuto."
+
+          - alert: PodCrashLooping
+            expr: |
+              rate(kube_pod_container_status_restarts_total{namespace="solidarytech"}[15m]) > 0
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Pod em CrashLoop no namespace solidarytech"
+              description: "Pod {{ $labels.pod }} reiniciando frequentemente."

@@ -1,0 +1,163 @@
+adminPassword: "$(GRAFANA_ADMIN_PASSWORD)"
+
+persistence:
+  enabled: true
+  size: 5Gi
+
+service:
+  type: LoadBalancer
+  port: 80
+
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: solidarytech-sre
+        orgId: 1
+        folder: SRE — SolidaryTech
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/solidarytech-sre
+
+dashboards:
+  solidarytech-sre:
+    sre-donation-service:
+      json: |
+        {
+          "title": "SRE — donation-service",
+          "uid": "sre-donation",
+          "tags": ["sre", "donation-service", "slo"],
+          "timezone": "browser",
+          "refresh": "30s",
+          "panels": [
+            {
+              "id": 1,
+              "title": "Taxa de Sucesso vs SLO (99.9%)",
+              "type": "gauge",
+              "gridPos": {"x": 0, "y": 0, "w": 6, "h": 6},
+              "targets": [
+                {
+                  "expr": "rate(http_requests_total{service=\"donation-service\",status!~\"5..\"}[5m]) / rate(http_requests_total{service=\"donation-service\"}[5m]) * 100",
+                  "legendFormat": "Taxa de Sucesso %"
+                }
+              ],
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "percent",
+                  "min": 99,
+                  "max": 100,
+                  "thresholds": {
+                    "steps": [
+                      {"color": "red", "value": 0},
+                      {"color": "yellow", "value": 99.5},
+                      {"color": "green", "value": 99.9}
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "id": 2,
+              "title": "Latência P50 / P95 / P99",
+              "type": "timeseries",
+              "gridPos": {"x": 6, "y": 0, "w": 10, "h": 6},
+              "targets": [
+                {
+                  "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket{service=\"donation-service\"}[5m]))",
+                  "legendFormat": "P50"
+                },
+                {
+                  "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{service=\"donation-service\"}[5m]))",
+                  "legendFormat": "P95"
+                },
+                {
+                  "expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{service=\"donation-service\"}[5m]))",
+                  "legendFormat": "P99"
+                }
+              ],
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "s",
+                  "custom": {
+                    "thresholdsStyle": {"mode": "line"}
+                  },
+                  "thresholds": {
+                    "steps": [
+                      {"color": "green", "value": 0},
+                      {"color": "red", "value": 0.5}
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "id": 3,
+              "title": "Error Budget Restante (30 dias)",
+              "type": "stat",
+              "gridPos": {"x": 16, "y": 0, "w": 8, "h": 6},
+              "targets": [
+                {
+                  "expr": "(1 - (sum(increase(http_requests_total{service=\"donation-service\",status=~\"5..\"}[30d])) / sum(increase(http_requests_total{service=\"donation-service\"}[30d])))) / (1 - 0.999) * 100",
+                  "legendFormat": "Error Budget %"
+                }
+              ],
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "percent",
+                  "thresholds": {
+                    "steps": [
+                      {"color": "red", "value": 0},
+                      {"color": "yellow", "value": 10},
+                      {"color": "green", "value": 50}
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "id": 4,
+              "title": "Requisições por Segundo (RPS)",
+              "type": "timeseries",
+              "gridPos": {"x": 0, "y": 6, "w": 12, "h": 6},
+              "targets": [
+                {
+                  "expr": "sum(rate(http_requests_total{service=\"donation-service\"}[1m])) by (status)",
+                  "legendFormat": "Status {{ status }}"
+                }
+              ],
+              "fieldConfig": {
+                "defaults": {"unit": "reqps"}
+              }
+            },
+            {
+              "id": 5,
+              "title": "Saturation — CPU e Memória dos Pods",
+              "type": "timeseries",
+              "gridPos": {"x": 12, "y": 6, "w": 12, "h": 6},
+              "targets": [
+                {
+                  "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"solidarytech\", container=\"donation-service\"}[5m])) by (pod)",
+                  "legendFormat": "CPU {{ pod }}"
+                },
+                {
+                  "expr": "sum(container_memory_working_set_bytes{namespace=\"solidarytech\", container=\"donation-service\"}) by (pod) / 1024 / 1024",
+                  "legendFormat": "Mem MB {{ pod }}"
+                }
+              ]
+            }
+          ]
+        }
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        url: http://kube-prometheus-stack-prometheus:9090
+        isDefault: true
+      - name: Loki
+        type: loki
+        url: http://loki:3100
