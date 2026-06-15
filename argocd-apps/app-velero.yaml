@@ -13,7 +13,7 @@ spec:
   sources:
     - repoURL: https://vmware-tanzu.github.io/helm-charts
       chart: velero
-      targetRevision: "7.x"
+      targetRevision: "6.7.0"
       helm:
         valueFiles:
           - $values/infra/velero/velero-install.yaml

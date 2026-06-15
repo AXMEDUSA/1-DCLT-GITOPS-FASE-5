@@ -1,3 +1,7 @@
+image:
+  repository: velero/velero
+  tag: v1.13.2
+
 configuration:
   backupStorageLocation:
     - name: default
@@ -23,9 +27,12 @@ credentials:
 initContainers:
   - name: velero-plugin-for-azure
     image: velero/velero-plugin-for-microsoft-azure:v1.10.0
+    imagePullPolicy: IfNotPresent
     volumeMounts:
       - mountPath: /target
         name: plugins
+
+upgradeCRDs: false
 
 schedules:
   daily-backup-solidarytech:
