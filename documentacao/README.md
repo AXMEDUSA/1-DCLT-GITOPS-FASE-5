@@ -629,6 +629,58 @@ velero restore create --from-backup <nome-do-backup>
 velero restore describe <nome-do-restore>
 ```
 
+### Evidências — Execução do Backup e Restore
+
+#### 11.1 Backups existentes no cluster
+
+![Velero backups existentes](assets/13-velero-backups-existentes.png)
+
+*`velero backup get` mostrando 2 backups completados (`backup-teste-20260615` e `teste-backup-solidarytech`) armazenados no Azure Blob Storage.*
+
+#### 11.2 Criação de novo backup
+
+![Velero backup criado](assets/14-velero-backup-criado.png)
+
+*`velero backup create backup-teste-20260615` submetido com sucesso — backup enfileirado para execução.*
+
+#### 11.3 Backup confirmado como Completed
+
+![Velero backup confirmado](assets/15-velero-backup-confirmado.png)
+
+*`velero backup get` exibindo 3 backups com status `Completed` — novo backup incluído na lista.*
+
+#### 11.4 Restore iniciado
+
+![Velero restore iniciado](assets/16-velero-restore-iniciado.png)
+
+*`velero restore create restore-demo-202606151219 --from-backup teste-backup-solidarytech` submetido com sucesso.*
+
+#### 11.5 Restore — describe (37/37 itens restaurados)
+
+![Velero restore describe](assets/17-velero-restore-describe.png)
+
+*`velero restore describe restore-demo-202606151219` — Phase: **Completed**, 37 itens restaurados em 2 segundos (12:19:36 → 12:19:38). Warnings referentes a ReplicaSets já existentes no cluster são esperados em restore in-place.*
+
+#### 11.6 Logs do restore
+
+![Velero restore logs](assets/18-velero-restore-logs.png)
+
+*Logs detalhados do restore mostrando os recursos restaurados no namespace `solidarytech`. Warnings de recursos já existentes são normais em restore sobre cluster ativo.*
+
+#### 11.7 Schedule de backup diário ativo
+
+![Velero schedule](assets/19-velero-schedule.png)
+
+*`velero schedule get` — schedule `daily-backup-solidarytech` com cron `0 2 * * *` (02h UTC), TTL 720h (30 dias), status **Enabled**.*
+
+#### 11.8 Lista de restores executados
+
+![Velero restores lista](assets/20-velero-restores-lista.png)
+
+*`velero restore get` — 2 restores completados com 0 erros, ambos originados do backup `teste-backup-solidarytech`, confirmando RTO < 1 minuto para restore completo do namespace.*
+
+---
+
 ### Estratégia DR — Warm Standby via Terraform (Opção B)
 
 O Terraform está parametrizado para levantar um ambiente espelho em outra região com um único comando:
