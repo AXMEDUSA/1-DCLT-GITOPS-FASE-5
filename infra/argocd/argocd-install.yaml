@@ -8,7 +8,7 @@ metadata:
 spec:
   description: SolidaryTech — ONG que conecta doadores e voluntários
   sourceRepos:
-    - https://github.com/DCLT/1-DCLT-GITOPS-FASE-5
+    - https://github.com/AXMEDUSA/1-DCLT-GITOPS-FASE-5
   destinations:
     - namespace: solidarytech
       server: https://kubernetes.default.svc

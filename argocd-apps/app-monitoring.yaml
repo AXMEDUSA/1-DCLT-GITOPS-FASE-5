@@ -17,7 +17,7 @@ spec:
       helm:
         valueFiles:
           - $values/infra/monitoring/prometheus-values.yaml
-    - repoURL: https://github.com/DCLT/1-DCLT-GITOPS-FASE-5
+    - repoURL: https://github.com/AXMEDUSA/1-DCLT-GITOPS-FASE-5
       targetRevision: main
       ref: values
   destination:
