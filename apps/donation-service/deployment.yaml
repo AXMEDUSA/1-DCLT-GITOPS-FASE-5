@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: donation-service
-          image: acrsolidarytechf5.azurecr.io/donation-service:aab995f2f3acef3462c7e3897998e284dae98b53
+          image: acrsolidarytechf5.azurecr.io/donation-service:c1e85a2858447e33e2a44332b44ec7cae66c29d8
           ports:
             - containerPort: 8082
           env:
