@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: volunteer-service
-          image: acrsolidarytechf5.azurecr.io/volunteer-service:cors
+          image: acrsolidarytechf5.azurecr.io/volunteer-service:66100d186d6958c3d2f5fc94da7d32ddf875e53d
           imagePullPolicy: Always
           ports:
             - containerPort: 8083
