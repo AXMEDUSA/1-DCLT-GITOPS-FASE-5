@@ -4,6 +4,25 @@
 
 ---
 
+## Equipe
+
+| Integrante | RM | GitHub |
+|---|---|---|
+| Jailson Vitor Domingos da Silva | RM367527 | JAILSON-ENTERPRISE |
+| Pedro Gimenez Miranda Silva | RM368740 | PedroGimenezSilva |
+| Diego José de Melo | RM368013 | DiegoMeloDevOps |
+| Felipe da Matta | RM367534 | fxshelll |
+
+## Links
+
+| Recurso | URL |
+|---|---|
+| **Repositório AppRepo** | https://github.com/AXMEDUSA/ToggleMaster-AppRepo |
+| **Repositório GitOps** | https://github.com/AXMEDUSA/ToggleMaster-gitops |
+| **Vídeo de Demonstração** | https://drive.google.com/file/d/1kuSfT_IdPuZux0jdck_2BQakYPZKPKyq/view?usp=sharing |
+
+---
+
 ## Sumário
 
 1. [Visão Geral do Projeto](#1-visão-geral-do-projeto)
@@ -16,7 +35,7 @@
 8. [SRE — Confiabilidade e Golden Metrics](#8-sre--confiabilidade-e-golden-metrics)
 9. [FinOps — Otimização Financeira](#9-finops--otimização-financeira)
 10. [AIOps e ITSM — Gestão Preditiva de Incidentes](#10-aiops-e-itsm--gestão-preditiva-de-incidentes)
-11. [Disaster Recovery e Continuidade de Negócios](#11-disaster-recovery-e-continuidade-de-negócios)
+11. [Disaster Recovery e Continuidade de Negócios (PCN)](#11-disaster-recovery-e-continuidade-de-negócios)
 12. [Evidências — Dashboard SolidaryTech UI](#12-evidências--dashboard-solidarytech-ui)
 
 ---
@@ -450,6 +469,18 @@ O Promtail roda como DaemonSet e coleta logs de todos os pods do namespace `soli
 
 ## 8. SRE — Confiabilidade e Golden Metrics
 
+### Definições: SLI, SLO e SLA
+
+| Sigla | Definição | Aplicação no SolidaryTech |
+|---|---|---|
+| **SLI** (Service Level Indicator) | Métrica mensurável que representa o comportamento real do serviço | Taxa de sucesso das requisições e latência P99 do donation-service |
+| **SLO** (Service Level Objective) | Meta interna de confiabilidade baseada no SLI | ≥ 99,9% de sucesso e P99 ≤ 500ms em janela de 30 dias |
+| **SLA** (Service Level Agreement) | Compromisso formal com as ONGs parceiras — se violado gera penalidades/notificações | Disponibilidade mínima de 99,5% mensal com notificação em até 5 minutos em caso de indisponibilidade |
+
+> **Nota:** O SLO (99,9%) é mais rigoroso que o SLA (99,5%) para que haja margem de segurança operacional antes de impactar as ONGs parceiras.
+
+---
+
 ### SLIs e SLOs do donation-service
 
 O donation-service é o **Caminho Crítico (Hot Path)** da plataforma. Uma falha aqui impede doações — impacto direto nas ONGs parceiras.
@@ -462,6 +493,7 @@ rate(http_requests_total{service="donation-service",status!~"5.."}[5m])
 ```
 
 **SLO:** ≥ 99,9% das requisições bem-sucedidas em janela de 30 dias  
+**SLA:** ≥ 99,5% de disponibilidade mensal (compromisso com ONGs parceiras)  
 **Error Budget:** 0,1% = ~43 minutos de downtime por mês
 
 #### SLI 2 — Latência P99
@@ -473,6 +505,7 @@ histogram_quantile(0.99,
 ```
 
 **SLO:** P99 ≤ 500ms  
+**SLA:** P99 ≤ 1.000ms (limite contratual com ONGs)  
 **Justificativa:** Uma doação deve ser processada em menos de meio segundo para garantir boa experiência ao doador.
 
 ### Error Budget
@@ -581,7 +614,7 @@ Os recursos foram dimensionados com base nas Golden Metrics dos serviços:
 
 ---
 
-## 11. Disaster Recovery e Continuidade de Negócios
+## 11. Disaster Recovery e Continuidade de Negócios (PCN)
 
 ### Plano de Continuidade de Negócios (PCN)
 
