@@ -17,9 +17,10 @@
 
 | Recurso | URL |
 |---|---|
-| **Repositório AppRepo** | https://github.com/AXMEDUSA/ToggleMaster-AppRepo |
-| **Repositório GitOps** | https://github.com/AXMEDUSA/ToggleMaster-gitops |
-| **Vídeo de Demonstração** | https://drive.google.com/file/d/1kuSfT_IdPuZux0jdck_2BQakYPZKPKyq/view?usp=sharing |
+| **Repositório Applications** | https://github.com/AXMEDUSA/1-DCLT-APPLICATIONS-FASE-5 |
+| **Repositório GitOps** | https://github.com/AXMEDUSA/1-DCLT-GITOPS-FASE-5 |
+| **Repositório Terraform** | https://github.com/AXMEDUSA/1-DCLT-TERRAFORM-FASE-5 |
+| **Vídeo de Demonstração** | https://drive.google.com/file/d/1ZD7awogdzqXjiVXePOQ-DGelB05SDcyf/view?usp=sharing |
 
 ---
 
