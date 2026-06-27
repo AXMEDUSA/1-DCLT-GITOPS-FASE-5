@@ -230,6 +230,66 @@ html_body = linkify(html_body)
 # Remove atributo align que o markdown gera às vezes
 html_body = re.sub(r' align="[^"]*"', '', html_body)
 
+# Adiciona id nos h2 para âncoras internas
+def slugify(text):
+    text = text.lower().strip()
+    text = re.sub(r'[áàãâä]', 'a', text)
+    text = re.sub(r'[éèêë]', 'e', text)
+    text = re.sub(r'[íìîï]', 'i', text)
+    text = re.sub(r'[óòõôö]', 'o', text)
+    text = re.sub(r'[úùûü]', 'u', text)
+    text = re.sub(r'[ç]', 'c', text)
+    text = re.sub(r'[^a-z0-9]+', '-', text)
+    return text.strip('-')
+
+def add_heading_ids(html):
+    def replacer(m):
+        tag = m.group(1)   # h2, h3, etc
+        content = m.group(2)
+        # texto limpo sem tags internas
+        clean = re.sub(r'<[^>]+>', '', content)
+        slug = slugify(clean)
+        return f'<{tag} id="{slug}">{content}</{tag}>'
+    return re.sub(r'<(h[23])>(.*?)</\1>', replacer, html, flags=re.DOTALL)
+
+html_body = add_heading_ids(html_body)
+
+# Converte itens do sumário em links internos
+# O sumário está dentro do primeiro <ol> após o <h2 id="sumario">
+def linkify_toc(html):
+    # Monta mapa: slug do h2 -> id real
+    h2_ids = re.findall(r'<h2 id="([^"]+)">[^<]*</h2>', html)
+
+    def replace_toc_li(m):
+        text = m.group(1).strip()
+        slug = slugify(text)
+        match_id = None
+        for hid in h2_ids:
+            # IDs dos h2 têm prefixo "N-" (ex: "1-visao-geral") — remove para comparar
+            hid_sem_numero = re.sub(r'^\d+-', '', hid)
+            if hid_sem_numero == slug or hid_sem_numero.startswith(slug[:12]):
+                match_id = hid
+                break
+        if match_id:
+            return f'<li><a href="#{match_id}">{text}</a></li>'
+        return m.group(0)
+
+    # Localiza o bloco <ol>...</ol> que é o sumário (logo após h2#sumario)
+    toc_pattern = re.compile(
+        r'(<h2 id="sumario">.*?</h2>\s*<ol>)(.*?)(</ol>)',
+        re.DOTALL
+    )
+    def replace_toc_block(m):
+        before = m.group(1)
+        items = m.group(2)
+        after = m.group(3)
+        items = re.sub(r'<li>(.*?)</li>', replace_toc_li, items, flags=re.DOTALL)
+        return before + items + after
+
+    return toc_pattern.sub(replace_toc_block, html)
+
+html_body = linkify_toc(html_body)
+
 html_full = f"""<!DOCTYPE html>
 <html lang="pt-BR">
 <head>

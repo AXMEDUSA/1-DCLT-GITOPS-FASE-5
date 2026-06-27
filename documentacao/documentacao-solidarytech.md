@@ -39,6 +39,7 @@ Hackathon FIAP — Fase 5 | Equipe DCLT
 11. Disaster Recovery e Continuidade de Negócios (PCN)
 12. Evidências — Dashboard SolidaryTech UI
 13. Evidências — Grafana Dashboard
+14. Evidências — Velero Backup e Restore
 
 ---
 
